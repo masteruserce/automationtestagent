@@ -159,7 +159,7 @@ def run_agent(spec: dict):
     for flow in spec.get("ui_flows", []):
         generate_ui_test(base_url, flow)
 
-    generate_api_test(base_url, spec.get("api_endpoints", []))
+    generate_api_test(spec["api_url"], spec.get("api_endpoints", []))
 
     print("\n✅ Automation agent completed successfully")
 
@@ -190,10 +190,11 @@ def strip_markdown_fences(code: str) -> str:
 if __name__ == "__main__":
     SPEC = {
         "base_url": "https://www.saucedemo.com/",
+        "api_url": "http://34.135.61.167:8000/api/v1",
         "ui_flows": ["login"],
         "api_endpoints": [
-            {"method": "GET", "path": "/api/users"},
-            {"method": "POST", "path": "/api/login"},
+            # {"method": "GET", "path": "/api/users"},
+            {"method": "POST", "path": "/auth/auth/login"},
         ],
     }
 

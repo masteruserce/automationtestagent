@@ -16,9 +16,9 @@ def page(browser):
     context.close()
 
 def test_login(page):
-    page.goto("https://example.com/login")
-    page.fill('input[name="username"]', "testuser")
-    page.fill('input[name="password"]', "password123")
-    page.click('button[type="submit"]')
-    page.wait_for_url("https://example.com/dashboard")
-    assert page.url == "https://example.com/dashboard"
+    page.goto("https://www.saucedemo.com/")
+    page.fill("input[data-test='username']", "standard_user")
+    page.fill("input[data-test='password']", "secret_sauce")
+    page.click("input[data-test='login-button']")
+    page.wait_for_url("https://www.saucedemo.com/inventory.html")
+    assert page.url == "https://www.saucedemo.com/inventory.html"
