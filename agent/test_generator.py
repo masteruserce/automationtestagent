@@ -58,9 +58,12 @@ BASE_URL = "{base_url}"
 # Logging configuration
 # ----------------------------
 logging.basicConfig(
-    filename="api_test.log",
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("api_test.log"),
+        logging.StreamHandler()
+    ]
 )
 
 def log_request_response(method, url, payload, response):
