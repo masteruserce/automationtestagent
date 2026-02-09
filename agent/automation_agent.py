@@ -2,6 +2,8 @@ import os
 import json
 from pathlib import Path
 from openai import OpenAI
+from agent.swagger_reader import read_swagger, extract_endpoints
+from agent.test_generator import generate_tests
 
 client = OpenAI()
 
@@ -155,18 +157,46 @@ jobs:
 # ---------------------------
 # Main Agent Entry
 # ---------------------------
+
+
 def run_agent(spec: dict):
-    base_url = spec["base_url"]
 
-    ensure_common_files()
-    ensure_pipeline()
+    # --- Swagger driven API discovery ---
+    swagger_url = spec.get("swagger_url")
+    base_url = spec.get("base_url")
 
-    for flow in spec.get("ui_flows", []):
-        generate_ui_test(base_url, flow)
+    if swagger_url:
+        swagger_spec = read_swagger(swagger_url)
+        swagger_base_url, endpoints = extract_endpoints(swagger_spec)
 
-    generate_api_test(spec["api_url"], spec.get("api_endpoints", []))
+        # Swagger server URL takes precedence
+        base_url = swagger_base_url or base_url
+    else:
+        raise ValueError("swagger_url is required for API test generation")
+
+    # --- Generate API tests ---
+    if spec.get("generate_api_tests", True):
+        generate_tests(base_url, endpoints)
+
+    # --- UI tests intentionally NOT executed ---
+    if not spec.get("enable_ui_tests", False):
+        print("ℹ️ UI tests are disabled (code retained, not executed)")
 
     print("\n✅ Automation agent completed successfully")
+
+
+# def run_agent(spec: dict):
+#     base_url = spec["base_url"]
+
+#     ensure_common_files()
+#     ensure_pipeline()
+
+#     for flow in spec.get("ui_flows", []):
+#         generate_ui_test(base_url, flow)
+
+#     generate_api_test(spec["api_url"], spec.get("api_endpoints", []))
+
+#     print("\n✅ Automation agent completed successfully")
 
 
 def strip_markdown_fences(code: str) -> str:
@@ -193,25 +223,42 @@ def strip_markdown_fences(code: str) -> str:
 # Run directly
 # ---------------------------
 if __name__ == "__main__":
+
     SPEC = {
-        "base_url": "http://34.135.61.167:8000/",
-        "api_url": "http://34.135.61.167:8000/api/v1",
-        "ui_flows": ["login"],
-        "api_endpoints": [
-            {
-                "method": "POST",
-                "path": "/auth/auth/login",
-                "auth_type": "oauth2_password",
-                "form_data": {
-                    "grant_type": "password",
-                    "username": "admin@acme.com",
-                    "password": "admin123",
-                    "scope": "",
-                    "client_id": "string",
-                    "client_secret": "",
-                },
-            }
-        ],
+        # Swagger / OpenAPI URL (JSON)
+        "swagger_url": "http://34.135.61.167:8000/openapi.json",
+        # Base URL fallback (used if swagger has no servers section)
+        "base_url": "http://34.135.61.167:8000",
+        # Keep UI code in repo, but do not run it
+        "enable_ui_tests": False,
+        # API test generation options
+        "generate_api_tests": True,
+        # Overwrite previously generated API tests
+        "overwrite": True,
     }
 
     run_agent(SPEC)
+
+# if __name__ == "__main__":
+#     SPEC = {
+#         "base_url": "http://34.135.61.167:8000/",
+#         "api_url": "http://34.135.61.167:8000/api/v1",
+#         "ui_flows": ["login"],
+#         "api_endpoints": [
+#             {
+#                 "method": "POST",
+#                 "path": "/auth/auth/login",
+#                 "auth_type": "oauth2_password",
+#                 "form_data": {
+#                     "grant_type": "password",
+#                     "username": "admin@acme.com",
+#                     "password": "admin123",
+#                     "scope": "",
+#                     "client_id": "string",
+#                     "client_secret": "",
+#                 },
+#             }
+#         ],
+#     }
+
+#     run_agent(SPEC)
