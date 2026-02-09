@@ -189,7 +189,7 @@ def strip_markdown_fences(code: str) -> str:
 # ---------------------------
 if __name__ == "__main__":
     SPEC = {
-        "base_url": "https://example.com",
+        "base_url": "https://www.saucedemo.com/",
         "ui_flows": ["login"],
         "api_endpoints": [
             {"method": "GET", "path": "/api/users"},
