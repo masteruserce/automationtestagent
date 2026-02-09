@@ -1,6 +1,8 @@
 import pytest
 from playwright.sync_api import sync_playwright
 
+BASE_URL = "http://34.135.61.167:8000/"
+
 @pytest.fixture(scope="session")
 def browser():
     with sync_playwright() as p:
@@ -8,17 +10,13 @@ def browser():
         yield browser
         browser.close()
 
-@pytest.fixture
-def page(browser):
+def test_login(browser):
     context = browser.new_context()
     page = context.new_page()
-    yield page
+    page.goto(f"{BASE_URL}/login")
+    page.fill('input[name="username"]', "your_username")
+    page.fill('input[name="password"]', "your_password")
+    page.click('button[type="submit"]')
+    page.wait_for_url(f"{BASE_URL}/dashboard")
+    assert page.url == f"{BASE_URL}/dashboard"
     context.close()
-
-def test_login(page):
-    page.goto("https://www.saucedemo.com/")
-    page.fill("input#user-name", "standard_user")
-    page.fill("input#password", "secret_sauce")
-    page.click("input#login-button")
-    page.wait_for_selector("div.inventory_list", timeout=5000)
-    assert page.url == "https://www.saucedemo.com/inventory.html"

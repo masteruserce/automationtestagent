@@ -74,6 +74,7 @@ Generate pytest API tests using requests.
 STRICT RULES:
 - Output ONLY raw Python code
 - NO markdown
+- Base URL: {base_url}
 - If auth_type is oauth2_password:
   - Use requests.post(..., data=form_data)
   - Use Content-Type application/x-www-form-urlencoded
@@ -193,13 +194,13 @@ def strip_markdown_fences(code: str) -> str:
 # ---------------------------
 if __name__ == "__main__":
     SPEC = {
-        "base_url": "https://www.saucedemo.com/",
+        "base_url": "http://34.135.61.167:8000/",
         "api_url": "http://34.135.61.167:8000/api/v1",
         "ui_flows": ["login"],
         "api_endpoints": [
             {
                 "method": "POST",
-                "path": "/login",
+                "path": "/auth/auth/login",
                 "auth_type": "oauth2_password",
                 "form_data": {
                     "grant_type": "password",
