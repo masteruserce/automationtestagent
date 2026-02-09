@@ -17,8 +17,8 @@ def page(browser):
 
 def test_login(page):
     page.goto("https://www.saucedemo.com/")
-    page.fill("input[data-test='username']", "standard_user")
-    page.fill("input[data-test='password']", "secret_sauce")
-    page.click("input[data-test='login-button']")
-    page.wait_for_url("https://www.saucedemo.com/inventory.html")
+    page.fill("input#user-name", "standard_user")
+    page.fill("input#password", "secret_sauce")
+    page.click("input#login-button")
+    page.wait_for_selector("div.inventory_list", timeout=5000)
     assert page.url == "https://www.saucedemo.com/inventory.html"

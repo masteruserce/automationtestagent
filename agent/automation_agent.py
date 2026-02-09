@@ -71,14 +71,18 @@ def generate_api_test(base_url: str, endpoints: list):
     prompt = f"""
 Generate pytest API tests using requests.
 
-Rules:
-- No explanations
-- Validate status code and JSON keys
-- Base URL: {base_url}
+STRICT RULES:
+- Output ONLY raw Python code
+- NO markdown
+- If auth_type is oauth2_password:
+  - Use requests.post(..., data=form_data)
+  - Use Content-Type application/x-www-form-urlencoded
+- Validate status code and access_token in response
 
-Endpoints:
+Endpoint definition:
 {json.dumps(endpoints, indent=2)}
 """
+
     code = llm_generate(prompt)
     clean_code = strip_markdown_fences(code)
     safe_write(API_DIR / "test_api.py", clean_code)
@@ -193,8 +197,19 @@ if __name__ == "__main__":
         "api_url": "http://34.135.61.167:8000/api/v1",
         "ui_flows": ["login"],
         "api_endpoints": [
-            # {"method": "GET", "path": "/api/users"},
-            {"method": "POST", "path": "/auth/auth/login"},
+            {
+                "method": "POST",
+                "path": "/login",
+                "auth_type": "oauth2_password",
+                "form_data": {
+                    "grant_type": "password",
+                    "username": "admin@acme.com",
+                    "password": "admin123",
+                    "scope": "",
+                    "client_id": "string",
+                    "client_secret": "",
+                },
+            }
         ],
     }
 

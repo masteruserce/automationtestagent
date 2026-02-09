@@ -1,20 +1,27 @@
 import pytest
 import requests
 
-BASE_URL = "http://34.135.61.167:8000/api/v1"
-
+BASE_URL = "http://localhost"  # Change to your API base URL
 
 @pytest.fixture
 def login_url():
-    return f"{BASE_URL}/auth/auth/login"
+    return f"{BASE_URL}/login"
 
-
-def test_login_status_code_and_json_keys(login_url):
-    payload = {"username": "admin@acme.com", "password": "admin123"}
-    response = requests.post(login_url, json=payload)
+def test_oauth2_password_login(login_url):
+    form_data = {
+        "grant_type": "password",
+        "username": "admin@acme.com",
+        "password": "admin123",
+        "scope": "",
+        "client_id": "string",
+        "client_secret": ""
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = requests.post(login_url, data=form_data, headers=headers)
     assert response.status_code == 200
-    json_data = response.json()
-    assert isinstance(json_data, dict)
-    # Replace these keys with expected keys from the login response
-    expected_keys = {"access_token", "refresh_token", "token_type"}
-    assert expected_keys.issubset(json_data.keys())
+    json_response = response.json()
+    assert "access_token" in json_response
+    assert isinstance(json_response["access_token"], str)
+    assert len(json_response["access_token"]) > 0
