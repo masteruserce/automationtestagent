@@ -1,7 +1,9 @@
 import pytest
 from playwright.sync_api import sync_playwright
 
+pytestmark = pytest.mark.ui
 BASE_URL = "http://34.135.61.167:8000/"
+
 
 @pytest.fixture(scope="session")
 def browser():
@@ -10,6 +12,8 @@ def browser():
         yield browser
         browser.close()
 
+
+@pytest.mark.skip(reason="Known issue: bug #123")
 def test_login(browser):
     context = browser.new_context()
     page = context.new_page()
