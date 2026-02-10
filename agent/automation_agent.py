@@ -226,9 +226,9 @@ if __name__ == "__main__":
 
     SPEC = {
         # Swagger / OpenAPI URL (JSON)
-        "swagger_url": "http://34.135.61.167:8000/openapi.json",
+        "swagger_url": "http://34.173.227.240:8000/openapi.json",
         # Base URL fallback (used if swagger has no servers section)
-        "base_url": "http://34.135.61.167:8000",
+        "base_url": "http://34.173.227.240:8000",
         # Keep UI code in repo, but do not run it
         "enable_ui_tests": False,
         # API test generation options
@@ -238,27 +238,3 @@ if __name__ == "__main__":
     }
 
     run_agent(SPEC)
-
-# if __name__ == "__main__":
-#     SPEC = {
-#         "base_url": "http://34.135.61.167:8000/",
-#         "api_url": "http://34.135.61.167:8000/api/v1",
-#         "ui_flows": ["login"],
-#         "api_endpoints": [
-#             {
-#                 "method": "POST",
-#                 "path": "/auth/auth/login",
-#                 "auth_type": "oauth2_password",
-#                 "form_data": {
-#                     "grant_type": "password",
-#                     "username": "admin@acme.com",
-#                     "password": "admin123",
-#                     "scope": "",
-#                     "client_id": "string",
-#                     "client_secret": "",
-#                 },
-#             }
-#         ],
-#     }
-
-#     run_agent(SPEC)

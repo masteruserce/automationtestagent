@@ -3,7 +3,7 @@ import json
 import textwrap
 import re
 import itertools
-
+from agent.data_factory import deterministic_value
 
 API_TEST_FILE = Path("automation/api/test_generated_api.py")
 
@@ -155,7 +155,7 @@ def auth_headers():
         tc_id = next_tc_id()
         description = swagger_description(ep)
 
-        payload, payload_type = generate_positive_payload(ep)
+        payload, payload_type = generate_positive_payload(ep, tc_id)
         payload_code = json.dumps(payload, indent=4) if payload else "None"
 
         headers_line = "headers=auth_headers" if auth_needed else ""
@@ -197,7 +197,7 @@ def test_{test_name}_positive({ "auth_headers" if auth_needed else "" }):
         # ----------------------------
         # NEGATIVE BDD TEST
         # ----------------------------
-        neg_payload = generate_negative_payload(ep)
+        neg_payload = generate_negative_payload(ep, tc_id)
         neg_payload_code = json.dumps(neg_payload, indent=4) if neg_payload else "None"
 
         negative_test = f"""
@@ -230,7 +230,7 @@ def test_{test_name}_negative({ "auth_headers" if auth_needed else "" }):
 
         code += textwrap.dedent(positive_test)
         code += textwrap.dedent(negative_test)
-
+        print(f"[GENERATED] {test_name} (Positive & Negative)")
     API_TEST_FILE.write_text(code.strip(), encoding="utf-8")
     print(f"[GENERATED] {API_TEST_FILE}")
 
@@ -240,7 +240,7 @@ def test_{test_name}_negative({ "auth_headers" if auth_needed else "" }):
 # ----------------------------
 
 
-def generate_positive_payload(endpoint: dict):
+def generate_positive_payload(endpoint: dict, tc_id: str):
     body = endpoint.get("requestBody")
     if not body:
         return None, None
@@ -261,14 +261,16 @@ def generate_positive_payload(endpoint: dict):
         return None, None
 
     payload = {
-        key: example_value(value.get("type")) for key, value in properties.items()
+        field: deterministic_value(tc_id, field, spec.get("type"))
+        for field, spec in properties.items()
     }
 
     return payload, payload_type
 
 
-def generate_negative_payload(endpoint: dict):
-    payload, _ = generate_positive_payload(endpoint)
+
+def generate_negative_payload(endpoint: dict, tc_id: str):
+    payload, _ = generate_positive_payload(endpoint, tc_id)
     if not payload:
         return None
 
@@ -277,11 +279,4 @@ def generate_negative_payload(endpoint: dict):
     return payload
 
 
-def example_value(type_name: str):
-    if type_name == "string":
-        return "invalid"
-    if type_name == "integer":
-        return -1
-    if type_name == "boolean":
-        return False
-    return None
+

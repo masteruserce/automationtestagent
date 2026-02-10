@@ -3,7 +3,7 @@ import requests
 import logging
 import json
 
-BASE_URL = "http://34.135.61.167:8000"
+BASE_URL = "http://34.173.227.240:8000"
 
 # ----------------------------
 # Logging configuration
