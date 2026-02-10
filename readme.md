@@ -36,10 +36,10 @@ The agent focuses on **contract validation, functional behavior, and negative sc
 Generated tests follow a **Given / When / Then** structure:
 
 ###  prerequisits
-python 3.12.x
-sudo apt install python3-pip
-pip install --upgrade pip
-pip install openai python-dotenv
+    -python 3.12.x
+    -sudo apt install python3-pip
+    -pip install --upgrade pip
+    -pip install openai python-dotenv
 ```python
 """
 Test Case ID: TC_API_001
@@ -48,33 +48,35 @@ WHEN the client sends a GET request
 THEN the API should return a successful response
 """
 ```
-# Project Structure
-repo/
-├── agent/                       
-│   ├── automation_agent.py
-│   ├── swagger_reader.py
-│   ├── test_generator.py
-│   ├── generate_tests.py
-│   └── data_factory.py
-│
-├── automation/                  # Executable test suite
-│   ├── __init__.py
-│   ├── api/
-│   │   ├── test_api.py
-│   │   └── test_generated_api.py
-│   ├── utils/
-│   │   ├── config.py
-│   │   └── schema_assertions.py
-│   ├── ui/
-│   │   └── test_login_ui.py
-│   └── conftest.py
-│
-├── helpers/
-│   └── outputcleaner.py
-│
-├── pytest.ini
-├── requirements.txt
-└── README.md
+# Project Structure## Project Structure
+
+ repo/
+    ├── agent/                       
+    │   ├── automation_agent.py
+    │   ├── swagger_reader.py
+    │   ├── test_generator.py
+    │   ├── generate_tests.py
+    │   └── data_factory.py
+    │
+    ├── automation/                  
+    │   ├── __init__.py
+    │   ├── api/
+    │   │   ├── test_api.py
+    │   │   └── test_generated_api.py
+    │   ├── utils/
+    │   │   ├── config.py
+    │   │   └── schema_assertions.py
+    │   ├── ui/
+    │   │   └── test_login_ui.py
+    │   └── conftest.py
+    │
+    ├── helpers/
+    │   └── outputcleaner.py
+    │
+    ├── pytest.ini
+    ├── requirements.txt
+    └── README.md
+
 
 # Instalation
 python -m venv venv
