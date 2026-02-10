@@ -136,7 +136,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r automation/requirements.txt
+          pip install -r requirements.txt
           playwright install --with-deps
 
       - name: Run tests
@@ -183,20 +183,6 @@ def run_agent(spec: dict):
         print("ℹ️ UI tests are disabled (code retained, not executed)")
 
     print("\n✅ Automation agent completed successfully")
-
-
-# def run_agent(spec: dict):
-#     base_url = spec["base_url"]
-
-#     ensure_common_files()
-#     ensure_pipeline()
-
-#     for flow in spec.get("ui_flows", []):
-#         generate_ui_test(base_url, flow)
-
-#     generate_api_test(spec["api_url"], spec.get("api_endpoints", []))
-
-#     print("\n✅ Automation agent completed successfully")
 
 
 def strip_markdown_fences(code: str) -> str:
