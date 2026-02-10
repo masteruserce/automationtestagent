@@ -2,7 +2,7 @@ import pytest
 import requests
 import logging
 import json
-from agent.schema_assertions import assert_schema
+from automation.utils.schema_assertions import assert_schema
 
 BASE_URL = "http://34.173.227.240:8000"
 
