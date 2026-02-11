@@ -48,9 +48,9 @@ WHEN the client sends a GET request
 THEN the API should return a successful response
 """
 ```
-# Project Structure## Project Structure
-
- repo/
+# Project Structure
+  
+    repo/
     ├── agent/                       
     │   ├── automation_agent.py
     │   ├── swagger_reader.py
