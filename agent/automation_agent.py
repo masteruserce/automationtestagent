@@ -232,7 +232,7 @@ def run_agent(spec: dict):
     # Generate Tests
     # ----------------------------
     if spec.get("generate_api_tests", True):
-        generate_tests(base_url, intent_model)
+        generate_tests(base_url, intent_model, swagger_spec)
 
     if not spec.get("enable_ui_tests", False):
         print("UI tests are disabled (code retained, not executed)")

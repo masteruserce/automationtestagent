@@ -9,10 +9,10 @@
       "functional"
     ],
     "roles": {
-      "requires_auth": "<Response [422]>",
+      "requires_auth": false,
       "role_access": {
-        "admin": false,
-        "user": false
+        "admin": true,
+        "user": true
       }
     },
     "async": false,
@@ -32,7 +32,7 @@
       "filtering"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
         "admin": true,
         "user": false
@@ -76,9 +76,9 @@
       "functional"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
-        "admin": false,
+        "admin": true,
         "user": false
       }
     },
@@ -97,9 +97,9 @@
       "functional"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
-        "admin": false,
+        "admin": true,
         "user": false
       }
     },
@@ -118,9 +118,9 @@
       "functional"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
-        "admin": false,
+        "admin": true,
         "user": false
       }
     },
@@ -138,10 +138,10 @@
       "contract"
     ],
     "roles": {
-      "requires_auth": "<Response [404]>",
+      "requires_auth": false,
       "role_access": {
-        "admin": false,
-        "user": false
+        "admin": true,
+        "user": true
       }
     },
     "async": false,
@@ -158,10 +158,10 @@
       "contract"
     ],
     "roles": {
-      "requires_auth": "<Response [404]>",
+      "requires_auth": false,
       "role_access": {
-        "admin": false,
-        "user": false
+        "admin": true,
+        "user": true
       }
     },
     "async": false,
@@ -201,10 +201,10 @@
       "contract"
     ],
     "roles": {
-      "requires_auth": "<Response [404]>",
+      "requires_auth": false,
       "role_access": {
-        "admin": false,
-        "user": false
+        "admin": true,
+        "user": true
       }
     },
     "async": false,
@@ -222,9 +222,9 @@
       "functional"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
-        "admin": false,
+        "admin": true,
         "user": false
       }
     },
@@ -242,10 +242,10 @@
       "contract"
     ],
     "roles": {
-      "requires_auth": "<Response [404]>",
+      "requires_auth": false,
       "role_access": {
-        "admin": false,
-        "user": false
+        "admin": true,
+        "user": true
       }
     },
     "async": false,
@@ -265,7 +265,7 @@
       "filtering"
     ],
     "roles": {
-      "requires_auth": "<Response [401]>",
+      "requires_auth": true,
       "role_access": {
         "admin": true,
         "user": false

@@ -96,20 +96,32 @@ class BehaviorExplorer:
         role_access = {}
 
         # Check without authentication
-        no_auth = self.safe_call(method, url)
-        requires_auth = no_auth and no_auth.status_code == 401
+        no_auth_response = self.safe_call(method, url)
+
+        if no_auth_response is None:
+            requires_auth = False
+        else:
+            requires_auth = no_auth_response.status_code in (401, 403)
 
         # Check each role
         for role_name, headers in self.role_headers.items():
             response = self.safe_call(method, url, headers=headers)
-            role_access[role_name] = (
-                response.status_code < 400 if response else False
-            )
+
+            if response is None:
+                role_access[role_name] = False
+                continue
+
+            # Explicit authorization failure
+            if response.status_code in (401, 403):
+                role_access[role_name] = False
+            else:
+                role_access[role_name] = True
 
         return {
-            "requires_auth": requires_auth,
+            "requires_auth": bool(requires_auth),
             "role_access": role_access,
         }
+
 
     # --------------------------------------------------
     # Pagination Detection
