@@ -98,8 +98,8 @@ Endpoint definition:
 # ---------------------------
 # Common Files
 # ---------------------------
-def ensure_common_files():
-    safe_write(UTILS_DIR / "config.py", """BASE_URL = """ "")
+def ensure_common_files(base_url: str):
+    safe_write(UTILS_DIR / "config.py", f'BASE_URL = "{base_url}"\n')
 
     safe_write(
         AUTOMATION_DIR / "requirements.txt",
@@ -107,10 +107,16 @@ def ensure_common_files():
 pytest-html
 requests
 playwright
+python-dotenv
 """,
     )
 
-    safe_write(AUTOMATION_DIR / "conftest.py", """import pytest""")
+    conftest_path = AUTOMATION_DIR / "conftest.py"
+
+    if not conftest_path.exists():
+        safe_write(conftest_path, "import pytest\n")
+    else:
+        print("conftest.py already exists — not overriding")
 
 
 # ---------------------------
@@ -121,7 +127,7 @@ def ensure_pipeline():
         PIPELINE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     PIPELINE_FILE.write_text(
-        """name: Automation Tests
+        f"""name: Automation Tests
 
 on:
   push:
@@ -140,7 +146,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r automation/requirements.txt
           playwright install --with-deps
 
       - name: Run tests
@@ -237,6 +243,9 @@ def run_agent(spec: dict):
     if not spec.get("enable_ui_tests", False):
         print("UI tests are disabled (code retained, not executed)")
 
+    # Ensure CI setup
+    ensure_common_files(base_url)
+    ensure_pipeline()
     print("\nAutomation agent completed successfully")
 
 
