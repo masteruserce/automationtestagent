@@ -210,76 +210,76 @@ def safe_request(method, url, **kwargs):
         # ----------------------------------
         # ROLE-BASED TEST GENERATION
         # ----------------------------------
+        if role_access:
+            for role_name, is_allowed in role_access.items():
 
-        for role_name, is_allowed in role_access.items():
+                tc_id = next_tc_id()
+                fixture_name = f"{role_name}_headers"
 
-            tc_id = next_tc_id()
-            fixture_name = f"{role_name}_headers"
+                if is_allowed:
 
-            if is_allowed:
+                    code += textwrap.dedent(f"""
+    @pytest.mark.functional
+    @pytest.mark.rbac
+    @pytest.mark.{risk}
+    def test_{test_base_name}_as_{role_name}({fixture_name}):
+        \"\"\"
+        Test Case ID: {tc_id}
+        Role: {role_name}
+        Classification: {classification}
+        Risk Level: {risk}
+        \"\"\"
 
-                code += textwrap.dedent(f"""
-@pytest.mark.functional
-@pytest.mark.rbac
-@pytest.mark.{risk}
-def test_{test_base_name}_as_{role_name}({fixture_name}):
-    \"\"\"
-    Test Case ID: {tc_id}
-    Role: {role_name}
-    Classification: {classification}
-    Risk Level: {risk}
-    \"\"\"
+        url = {url_expr}
+        payload = {payload_code}
+        query = {query_code}
 
-    url = {url_expr}
-    payload = {payload_code}
-    query = {query_code}
+        response = safe_request(
+            "{method}",
+            url,
+            headers={fixture_name},
+            json=payload if payload else None,
+            params=query if query else None
+        )
 
-    response = safe_request(
-        "{method}",
-        url,
-        headers={fixture_name},
-        json=payload if payload else None,
-        params=query if query else None
-    )
+        log_request_response("{method}", url, response)
 
-    log_request_response("{method}", url, response)
+        # ---- Lifecycle Capture ----
+        if "{classification}" == "create":
+            try:
+                data = response.json()
+                captured = LifecycleChainingEngine.extract_resource_values(
+                    data,
+                    {json.dumps(swagger_spec)}
+                )
+                EXECUTION_CONTEXT.register(captured)
+            except Exception:
+                pass
+                
+        assert response.status_code in (200, 201, 202, 204)
+    """)
 
-    # ---- Lifecycle Capture ----
-    if "{classification}" == "create":
-        try:
-            data = response.json()
-            captured = LifecycleChainingEngine.extract_resource_values(
-                data,
-                {json.dumps(swagger_spec)}
-            )
-            EXECUTION_CONTEXT.register(captured)
-        except Exception:
-            pass
-            
-    assert response.status_code in (200, 201, 202, 204)
-""")
+                else:
 
-            else:
+                    code += textwrap.dedent(f"""
+    @pytest.mark.security
+    @pytest.mark.rbac
+    @pytest.mark.{risk}
+    def test_{test_base_name}_as_{role_name}_forbidden({fixture_name}):
+        \"\"\"
+        Test Case ID: {tc_id}_SEC
+        Role: {role_name}
+        Expected: Forbidden
+        \"\"\"
 
-                code += textwrap.dedent(f"""
-@pytest.mark.security
-@pytest.mark.rbac
-@pytest.mark.{risk}
-def test_{test_base_name}_as_{role_name}_forbidden({fixture_name}):
-    \"\"\"
-    Test Case ID: {tc_id}_SEC
-    Role: {role_name}
-    Expected: Forbidden
-    \"\"\"
+        url = {url_expr}
 
-    url = {url_expr}
+        response = safe_request("{method}", url, headers={fixture_name})
 
-    response = safe_request("{method}", url, headers={fixture_name})
+        log_request_response("{method}", url, response)
 
-    log_request_response("{method}", url, response)
-
-    assert response.status_code in (401, 403)
-""")
+        assert response.status_code in (401, 403)
+    """)
 
         # ----------------------------------
         # UNAUTHENTICATED ACCESS TEST
