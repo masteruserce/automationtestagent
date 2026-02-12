@@ -167,7 +167,12 @@ def safe_request(method, url, **kwargs):
         raw_path = ep["endpoint"]
         tc_id_base = next_tc_id()
         # Replace path params with deterministic placeholder
-        path = replace_path_params(raw_path, tc_id_base)
+        path = replace_path_params_with_swagger(
+                                                    raw_path,
+                                                    method,
+                                                    swagger_spec,
+                                                    tc_id_base,
+                                                )
 
         classification = ep.get("classification", "unknown")
         risk = ep.get("risk_level", "medium")
@@ -303,4 +308,48 @@ def replace_path_params(path: str, tc_id: str):
     def replacer(match):
         param_name = match.group(1)
         return str(deterministic_value(tc_id, param_name, "string"))
+    return re.sub(r"{([^}]+)}", replacer, path)
+
+import uuid
+
+
+def replace_path_params_with_swagger(path: str, method: str, swagger_spec: dict, tc_id: str):
+    """
+    Replaces {path} parameters using Swagger schema.
+    Supports uuid format properly.
+    """
+
+    paths = swagger_spec.get("paths", {})
+    path_item = paths.get(path, {})
+    operation = path_item.get(method.lower(), {})
+
+    # Collect parameters from both path-level and operation-level
+    parameters = []
+    parameters.extend(path_item.get("parameters", []))
+    parameters.extend(operation.get("parameters", []))
+
+    param_map = {
+        p["name"]: p.get("schema", {})
+        for p in parameters
+        if p.get("in") == "path"
+    }
+
+    def replacer(match):
+        param_name = match.group(1)
+        schema = param_map.get(param_name, {})
+
+        param_type = schema.get("type")
+        param_format = schema.get("format")
+
+        # ---- UUID FIX ----
+        if param_format == "uuid":
+            return str(uuid.uuid4())
+
+        # ---- INTEGER ----
+        if param_type == "integer":
+            return "1"
+
+        # ---- DEFAULT STRING ----
+        return str(deterministic_value(tc_id, param_name, param_type or "string"))
+
     return re.sub(r"{([^}]+)}", replacer, path)
