@@ -342,6 +342,9 @@ def replace_path_params(path: str, tc_id: str):
 import uuid
 
 
+import uuid
+import re
+
 def replace_path_params_with_swagger(path: str, method: str, swagger_spec: dict, tc_id: str):
     """
     Replaces {path} parameters using Swagger schema.
@@ -368,14 +371,29 @@ def replace_path_params_with_swagger(path: str, method: str, swagger_spec: dict,
         schema = param_map.get(param_name, {})
 
         param_type = schema.get("type")
+        param_format = schema.get("format")
 
-        fallback = deterministic_value(
-            tc_id,
-            param_name,
-            param_type or "string"
+        # ---- UUID FIX ----
+        if param_format == "uuid":
+            fallback = str(uuid.uuid4())
+
+        # ---- INTEGER ----
+        elif param_type == "integer":
+            fallback = "1"
+
+        # ---- DEFAULT ----
+        else:
+            fallback = deterministic_value(
+                tc_id,
+                param_name,
+                param_type or "string"
+            )
+
+        # Runtime-safe expression for lifecycle chaining
+        return (
+            "{"
+            + f"EXECUTION_CONTEXT.get('{param_name}') or '{fallback}'"
+            + "}"
         )
-
-        # Build runtime-safe expression
-        return '{' + f"EXECUTION_CONTEXT.get('{param_name}') or '{fallback}'" + '}'
 
     return re.sub(r"{([^}]+)}", replacer, path)
