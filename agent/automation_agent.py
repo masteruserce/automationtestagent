@@ -111,12 +111,6 @@ python-dotenv
 """,
     )
 
-    conftest_path = AUTOMATION_DIR / "conftest.py"
-
-    if not conftest_path.exists():
-        safe_write(conftest_path, "import pytest\n")
-    else:
-        print("conftest.py already exists — not overriding")
 
 
 # ---------------------------
@@ -172,6 +166,67 @@ jobs:
         encoding="utf-8",
     )
     print("[CREATED] GitHub Actions pipeline")
+
+def ensure_fixtures():
+    """
+    Always generates authentication fixtures.
+    Overwrites existing conftest.py to guarantee consistency.
+    """
+
+    conftest_path = AUTOMATION_DIR / "conftest.py"
+    conftest_path.parent.mkdir(parents=True, exist_ok=True)
+
+    conftest_path.write_text(
+        """
+import os
+import pytest
+import requests
+
+BASE_URL = os.getenv("BASE_URL")
+
+def login(username: str, password: str) -> str:
+    response = requests.post(
+        f"{BASE_URL}/api/v1/auth/auth/login",
+        data={
+            "grant_type": os.getenv("GRANT_TYPE", "password"),
+            "username": username,
+            "password": password,
+            "scope": os.getenv("SCOPE", ""),
+            "client_id": os.getenv("CLIENT_ID"),
+            "client_secret": os.getenv("CLIENT_SECRET"),
+        },
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        },
+        timeout=15,
+    )
+
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+
+@pytest.fixture(scope="session")
+def admin_headers():
+    token = login(
+        os.getenv("ADMIN_USERNAME"),
+        os.getenv("ADMIN_PASSWORD"),
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="session")
+def user_headers():
+    token = login(
+        os.getenv("USER_USERNAME"),
+        os.getenv("USER_PASSWORD"),
+    )
+    return {"Authorization": f"Bearer {token}"}
+""".strip(),
+        encoding="utf-8",
+    )
+
+    print("[UPDATED] conftest.py with dynamic auth fixtures")
 
 
 # ---------------------------
@@ -256,6 +311,7 @@ def run_agent(spec: dict):
     # Ensure CI setup
     ensure_common_files(base_url)
     ensure_pipeline()
+    ensure_fixtures()
     print("\nAutomation agent completed successfully")
 
 
