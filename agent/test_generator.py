@@ -135,8 +135,12 @@ def generate_tests(base_url: str, intent_model: list, swagger_spec: dict):
 import pytest
 import requests
 import logging
+from resolution.lifecycle_engine import LifecycleChainingEngine
+from resolution.execution_context import ExecutionContext
 
 BASE_URL = "{base_url}"
+
+EXECUTION_CONTEXT = ExecutionContext()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -157,21 +161,34 @@ def safe_request(method, url, **kwargs):
         pytest.fail(str(e))
 """
 
+
     # ----------------------------
     # Generate tests per endpoint
     # ----------------------------
+    creation_endpoints = [
+    ep for ep in intent_model
+    if ep.get("classification") == "create"
+    ]
 
-    for ep in intent_model:
+    non_creation_endpoints = [
+        ep for ep in intent_model
+        if ep.get("classification") != "create"
+    ]
+
+    ordered_endpoints = creation_endpoints + non_creation_endpoints
+
+    for ep in ordered_endpoints:
 
         method = ep["method"].upper()
         raw_path = ep["endpoint"]
         tc_id_base = next_tc_id()
+        static_path = raw_path
         # Replace path params with deterministic placeholder
-        path = replace_path_params_with_swagger(
-                                                    raw_path,
-                                                    method,
-                                                    swagger_spec,
-                                                    tc_id_base,
+        runtime_path  = replace_path_params_with_swagger(
+                                                raw_path,
+                                                method,
+                                                swagger_spec,
+                                                tc_id_base,
                                                 )
 
         classification = ep.get("classification", "unknown")
@@ -180,8 +197,8 @@ def safe_request(method, url, **kwargs):
         role_access = roles_info.get("role_access", {})
         requires_auth = roles_info.get("requires_auth", False)
 
-        test_base_name = bdd_test_name(method, path)
-        url_expr = f'f"{{BASE_URL}}{path}"'
+        test_base_name = bdd_test_name(method, static_path)
+        url_expr = f'f"{{BASE_URL}}{runtime_path}"'
 
         # Generate deterministic payload + query
        
@@ -227,6 +244,18 @@ def test_{test_base_name}_as_{role_name}({fixture_name}):
 
     log_request_response("{method}", url, response)
 
+    # ---- Lifecycle Capture ----
+    if "{classification}" == "create":
+        try:
+            data = response.json()
+            captured = LifecycleChainingEngine.extract_resource_values(
+                data,
+                {json.dumps(swagger_spec)}
+            )
+            EXECUTION_CONTEXT.register(captured)
+        except Exception:
+            pass
+            
     assert response.status_code in (200, 201, 202, 204)
 """)
 
@@ -339,17 +368,14 @@ def replace_path_params_with_swagger(path: str, method: str, swagger_spec: dict,
         schema = param_map.get(param_name, {})
 
         param_type = schema.get("type")
-        param_format = schema.get("format")
 
-        # ---- UUID FIX ----
-        if param_format == "uuid":
-            return str(uuid.uuid4())
+        fallback = deterministic_value(
+            tc_id,
+            param_name,
+            param_type or "string"
+        )
 
-        # ---- INTEGER ----
-        if param_type == "integer":
-            return "1"
-
-        # ---- DEFAULT STRING ----
-        return str(deterministic_value(tc_id, param_name, param_type or "string"))
+        # Build runtime-safe expression
+        return '{' + f'EXECUTION_CONTEXT.get("{param_name}") or "{fallback}"' + '}'
 
     return re.sub(r"{([^}]+)}", replacer, path)
