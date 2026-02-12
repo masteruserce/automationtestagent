@@ -27,6 +27,8 @@ jobs:
             echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> $GITHUB_ENV
             echo "USER_USERNAME=${{ secrets.USER_USERNAME }}" >> $GITHUB_ENV
             echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
+            echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+            echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
       
       - name: Run tests
         run: |

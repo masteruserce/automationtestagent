@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import textwrap
 import re
@@ -50,6 +51,7 @@ def build_payload_from_schema(schema: dict, tc_id: str, parent_field: str = ""):
     if not schema:
         return None
 
+    print(f'schema: {schema}')
     schema_type = schema.get("type")
 
     if schema_type == "object":
@@ -99,7 +101,15 @@ def resolve_with_engine(ep: dict, tc_id: str, swagger_spec_from_Parent: dict):
         role_context = {
             "role": "system",
             "token": None,
-            "restricted_fields": []
+            "restricted_fields": [],
+            "credentials": {
+            "username": os.getenv("ADMIN_USERNAME"),
+            "password": os.getenv("ADMIN_PASSWORD"),
+            "client_id": os.getenv("CLIENT_ID"),
+            "client_secret": os.getenv("CLIENT_SECRET"),
+            "grant_type": os.getenv("GRANT_TYPE"),
+            "scope": os.getenv("SCOPE", "")
+            }
         }
 
         resolution_request = TestStepResolutionRequest(
@@ -219,67 +229,67 @@ def safe_request(method, url, **kwargs):
                 if is_allowed:
 
                     code += textwrap.dedent(f"""
-    @pytest.mark.functional
-    @pytest.mark.rbac
-    @pytest.mark.{risk}
-    def test_{test_base_name}_as_{role_name}({fixture_name}):
-        \"\"\"
-        Test Case ID: {tc_id}
-        Role: {role_name}
-        Classification: {classification}
-        Risk Level: {risk}
-        \"\"\"
+@pytest.mark.functional
+@pytest.mark.rbac
+@pytest.mark.{risk}
+def test_{test_base_name}_as_{role_name}({fixture_name}):
+    \"\"\"
+    Test Case ID: {tc_id}
+    Role: {role_name}
+    Classification: {classification}
+    Risk Level: {risk}
+    \"\"\"
 
-        url = {url_expr}
-        payload = {payload_code}
-        query = {query_code}
+    url = {url_expr}
+    payload = {payload_code}
+    query = {query_code}
 
-        response = safe_request(
-            "{method}",
-            url,
-            headers={fixture_name},
-            json=payload if payload else None,
-            params=query if query else None
-        )
+    response = safe_request(
+        "{method}",
+        url,
+        headers={fixture_name},
+        json=payload if payload else None,
+        params=query if query else None
+    )
 
-        log_request_response("{method}", url, response)
+    log_request_response("{method}", url, response)
 
-        # ---- Lifecycle Capture ----
-        if "{classification}" == "create":
-            try:
-                data = response.json()
-                captured = LifecycleChainingEngine.extract_resource_values(
-                    data,
-                    {json.dumps(swagger_spec)}
-                )
-                EXECUTION_CONTEXT.register(captured)
-            except Exception:
-                pass
-                
-        assert response.status_code in (200, 201, 202, 204)
-    """)
+    # ---- Lifecycle Capture ----
+    if "{classification}" == "create":
+        try:
+            data = response.json()
+            captured = LifecycleChainingEngine.extract_resource_values(
+                data,
+                {json.dumps(swagger_spec)}
+            )
+            EXECUTION_CONTEXT.register(captured)
+        except Exception:
+            pass
+            
+    assert response.status_code in (200, 201, 202, 204)
+""")
 
                 else:
 
                     code += textwrap.dedent(f"""
-    @pytest.mark.security
-    @pytest.mark.rbac
-    @pytest.mark.{risk}
-    def test_{test_base_name}_as_{role_name}_forbidden({fixture_name}):
-        \"\"\"
-        Test Case ID: {tc_id}_SEC
-        Role: {role_name}
-        Expected: Forbidden
-        \"\"\"
+@pytest.mark.security
+@pytest.mark.rbac
+@pytest.mark.{risk}
+def test_{test_base_name}_as_{role_name}_forbidden({fixture_name}):
+    \"\"\"
+    Test Case ID: {tc_id}_SEC
+    Role: {role_name}
+    Expected: Forbidden
+    \"\"\"
 
-        url = {url_expr}
+    url = {url_expr}
 
-        response = safe_request("{method}", url, headers={fixture_name})
+    response = safe_request("{method}", url, headers={fixture_name})
 
-        log_request_response("{method}", url, response)
+    log_request_response("{method}", url, response)
 
-        assert response.status_code in (401, 403)
-    """)
+    assert response.status_code in (401, 403)
+""")
 
         # ----------------------------------
         # UNAUTHENTICATED ACCESS TEST

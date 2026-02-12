@@ -24,7 +24,7 @@ class StepResolutionContext:
 
     # Populated during pipeline
     request_schema: Dict[str, Any] = field(default_factory=dict)
-    required_fields: Dict[str, Any] = field(default_factory=dict)
+    required_fields: list = field(default_factory=list)
     path_params_schema: Dict[str, Any] = field(default_factory=dict)
     query_params_schema: Dict[str, Any] = field(default_factory=dict)
 
