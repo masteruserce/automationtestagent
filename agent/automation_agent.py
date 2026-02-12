@@ -127,7 +127,7 @@ def ensure_pipeline():
         PIPELINE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     PIPELINE_FILE.write_text(
-        f"""name: Automation Tests
+        """name: Automation Tests
 
 on:
   push:
