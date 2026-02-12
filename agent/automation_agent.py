@@ -100,7 +100,7 @@ Endpoint definition:
 # ---------------------------
 def ensure_common_files(base_url: str):
     safe_write(UTILS_DIR / "config.py", f'BASE_URL = "{base_url}"\n')
-
+    
     safe_write(
         AUTOMATION_DIR / "requirements.txt",
         """pytest
@@ -149,6 +149,14 @@ jobs:
           pip install -r automation/requirements.txt
           playwright install --with-deps
 
+      - name: Set environment variables
+        run: |
+        echo "BASE_URL=${{ secrets.BASE_URL }}" >> $GITHUB_ENV
+        echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> $GITHUB_ENV
+        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> $GITHUB_ENV
+        echo "USER_USERNAME=${{ secrets.USER_USERNAME }}" >> $GITHUB_ENV
+        echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
+      
       - name: Run tests
         run: |
           pytest automation --html=report.html --self-contained-html
