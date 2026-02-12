@@ -383,7 +383,7 @@ if __name__ == "__main__":
         # Swagger / OpenAPI URL (JSON)
         "swagger_url": "http://34.56.161.228:8000/openapi.json",
         # Base URL fallback (used if swagger has no servers section)
-        "base_url": "http://34.56.161.228:8000/",
+        "base_url": "http://34.56.161.228:8000",
         "environment": "staging",
         "roles": {
                 "admin": {
