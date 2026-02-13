@@ -39,12 +39,12 @@ def test_create_api_v1_auth_auth_login_as_admin(admin_headers):
 
     url = f"{BASE_URL}/api/v1/auth/auth/login"
     payload = {
-    "grant_type": "grant_type_5583",
-    "username": "username_4543",
-    "password": "password_8488",
-    "scope": "scope_6035",
-    "client_id": "client_id_347",
-    "client_secret": "client_secret_8011"
+    "grant_type": "password",
+    "username": "admin@acme.com",
+    "password": "admin123",
+    "scope": "",
+    "client_id": "",
+    "client_secret": ""
 }
     query = None
 
@@ -80,12 +80,12 @@ def test_create_api_v1_auth_auth_login_as_user(user_headers):
 
     url = f"{BASE_URL}/api/v1/auth/auth/login"
     payload = {
-    "grant_type": "grant_type_5583",
-    "username": "username_4543",
-    "password": "password_8488",
-    "scope": "scope_6035",
-    "client_id": "client_id_347",
-    "client_secret": "client_secret_8011"
+    "grant_type": "password",
+    "username": "user@acme.com",
+    "password": "user123",
+    "scope": "",
+    "client_id": "",
+    "client_secret": ""
 }
     query = None
 
