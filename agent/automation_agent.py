@@ -406,3 +406,15 @@ if __name__ == "__main__":
 
 
     run_agent(SPEC)
+
+# GRANT_TYPE ="password"
+# SCOPE=""
+# CLIENT_ID=""
+# client_secret=""
+# BASE_URL="http://34.56.161.228:8000/"
+# ADMIN_PASSWORD="admin123"
+# ADMIN_USERNAME="admin@acme.com"
+# USER_PASSWORD="user123"
+# USER_USERNAME="user@acme.com"
+# SWAGGER_URL = "http://34.56.161.228:8000/openapi.json"
+# ENVIRONMENT="staging"
