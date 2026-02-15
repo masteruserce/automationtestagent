@@ -1,0 +1,38 @@
+Point 1
+Remove Hardcoded Markers from agent
+@pytest.mark.functional
+@pytest.mark.rbac
+@pytest.mark.high
+
+Use Json file as test data
+{
+  "path": "/api/v1/users",
+  "method": "GET",
+  "execute": true,
+  "category": "security",
+  "rbac": true,
+  "priority": "high"
+}
+
+Point 2- 
+Use API Credentials and Base URL also from Test Data, remove Hardcode from the .py file
+url = f"{BASE_URL}/api/v1/auth/auth/login"
+    payload = {
+    "grant_type": "grant_type_5583",
+    "username": "username_4543",
+    "password": "password_8488",
+    "scope": "scope_6035",
+    "client_id": "client_id_347",
+    "client_secret": "client_secret_8011"
+}
+
+Point 3- 
+Remove Hardocde assert values form .py files, Use Test Data files
+assert response.status_code in (200, 201, 202, 204)
+
+Point 4-
+Put BASE URL as a global variable into intent Model.
+
+
+Point 5 -
+Find a GIT Repo for BDD example for API
