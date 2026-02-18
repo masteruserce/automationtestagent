@@ -46,7 +46,7 @@ class BehaviorExplorer:
     # --------------------------------------------------
     def explore_endpoint(self, endpoint: dict) -> Optional[dict]:
         method = endpoint["method"].upper()
-        path = endpoint["path"]
+        path = endpoint["endpoint"]
         full_url = f"{self.base_url}{path}"
 
         # Production safety guard

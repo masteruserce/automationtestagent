@@ -4,6 +4,12 @@ pytest-html>=4.1.1
 openai>=1.0.0
 python-dotenv>=1.0.0
 playwright>=1.40.0
+behave>=1.2.6
+# Backend UI (FastAPI)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.6.0
+
 
 
 # export OPENAI_API_KEY=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
