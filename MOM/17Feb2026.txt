@@ -1,0 +1,22 @@
+Add one point instead of waiting for the last approver,
+
+Point 1.
+First fetch the number of Approvers required for the workflow and then apply the loop.
+
+Point 2.
+Also add the condition, if the final approver approves the flow then no need of approval of lower users.
+
+Point 3.
+Also add the same conditions for Rejection case.
+
+Point 4.
+If 2 users has the same role in this case our application can be assign to anyone user on runtime(Load distribution).
+
+Point 5. 
+Also check the Token existance( if token is expired then not able to perform any action)
+
+Point 6.
+Also add Multi Tenant Workflow
+For Example
+In API_1 - Need approval of 2 users
+In API_2 - Need approval of 4 users
